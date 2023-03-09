@@ -1,10 +1,9 @@
 import abc
 from typing import Optional
 
-from braandket.utils import structured_iter
 from braandket_synthesis import Controlled, KetSpaces, MatrixOperation, Op, QOperation, QOperationTrait, QuantumGate, \
     Remapped, Sequential
-from braandket_synthesis.utils import iter_structured_zip
+from braandket_synthesis.utils import iter_structure, iter_zip_structures
 
 
 class ToCode(QOperationTrait[Op], abc.ABC):
@@ -13,7 +12,7 @@ class ToCode(QOperationTrait[Op], abc.ABC):
 
     def to_code(self, spaces: KetSpaces) -> str:
         head_str = type(self.operation).__name__
-        args_str = ", ".join(sp.name for sp in structured_iter(spaces))
+        args_str = ", ".join(sp.name for sp in iter_structure(spaces))
 
         try:
             body_code = self.body_to_code(spaces)
@@ -59,7 +58,7 @@ class RemappedOperationToCode(ToCode[Remapped]):
 class ControlOperationToCode(ToCode[Controlled]):
     def to_code(self, spaces: KetSpaces) -> str:
         ctl_spaces, tgt_spaces = spaces
-        ctl_str = ", ".join(f"{sp.name}={k}" for sp, k in iter_structured_zip(ctl_spaces, self.operation.keys))
+        ctl_str = ", ".join(f"{sp.name}={k}" for sp, k in iter_zip_structures(ctl_spaces, self.operation.keys))
 
         body_code = self.operation.bullet.trait(ToCode)(tgt_spaces)
         return f"controlled({ctl_str}) {body_code}"
