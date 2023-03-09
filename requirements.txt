@@ -2,5 +2,5 @@ numpy
 scipy
 matplotlib
 
-braandket==0.8.0
-braandket-synthesis==0.2.0
+braandket==0.8.1
+braandket-synthesis==0.2.2
